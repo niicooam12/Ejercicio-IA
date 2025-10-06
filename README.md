@@ -1,5 +1,16 @@
 # Redes-Neuronales-Trabajo
 
+https://github.com/niicooam12/Ejercicio-IA
+https://github.com/niicooam12/Ejercicio-IA
+https://github.com/niicooam12/Ejercicio-IA
+
+
+
+
+
+
+
+
   ## Descripcion
 .Este proyecto desarrolla una aplicación para el reconocimiento de dígitos manuscritos mediante una Red Neuronal Convolucional (CNN) entrenada con el conjunto de datos MNIST. La aplicación permite cargar o arrastrar imágenes de dígitos dibujados (por ejemplo, en Paint), predecir el número utilizando un modelo de TensorFlow/Keras y subir dichas imágenes a Firebase Storage, obteniendo una URL pública. La interfaz gráfica está construida con Flask. 
   ## Caracteristicas
