@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reconocimiento de Dígitos con Redes Neuronales</title>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            font-family: 'Montserrat', Arial, sans-serif;
+            background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            background: rgba(255,255,255,0.95);
+            border-radius: 28px;
+            box-shadow: 0 8px 32px rgba(44, 62, 80, 0.18);
+            padding: 38px 32px 28px 32px;
+            margin: 32px 0;
+        }
+        h1 {
+            text-align: center;
+            color: #2d3e50;
+            font-weight: 700;
+            margin-bottom: 24px;
+            letter-spacing: 1px;
+        }
+        form {
+            background: #f7fafd;
+            border-radius: 18px;
+            box-shadow: 0 2px 12px rgba(44, 62, 80, 0.10);
+            padding: 22px 18px 18px 18px;
+            margin-bottom: 24px;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #34495e;
+            font-weight: 500;
+            font-size: 1.05rem;
+        }
+        input[type="file"] {
+            width: 100%;
+            padding: 10px 12px;
+            margin-bottom: 18px;
+            border: 1.5px solid #b2bec3;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: #f7fafd;
+            transition: border-color 0.2s;
+        }
+        input[type="file"]:focus {
+            border-color: #0984e3;
+            outline: none;
+        }
+        button {
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(90deg, #0984e3 0%, #00b894 100%);
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            font-size: 1.13rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(44, 62, 80, 0.12);
+            transition: background 0.2s;
+            margin-top: 8px;
+        }
+        button:hover {
+            background: linear-gradient(90deg, #00b894 0%, #0984e3 100%);
+        }
+        .card {
+            background: #f7fafd;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(44, 62, 80, 0.10);
+            padding: 18px 16px;
+            margin-top: 18px;
+            margin-bottom: 18px;
+        }
+        .result, .error, .pred {
+            font-size: 1.08rem;
+            margin-bottom: 8px;
+        }
+        .result { color: #00b894; }
+        .error { color: #d63031; }
+        .pred { color: #0984e3; }
+        .img-preview {
+            display: block;
+            margin: 16px auto 0 auto;
+            border-radius: 14px;
+            box-shadow: 0 2px 12px rgba(44, 62, 80, 0.18);
+            border: 2px solid #0984e3;
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            background: #fff;
+        }
+        .section-title {
+            text-align: center;
+            font-size: 1.18rem;
+            font-weight: 700;
+            color: #2d3e50;
+            margin-bottom: 18px;
+            margin-top: 18px;
+            letter-spacing: 1px;
+        }
+        .history-section {
+            margin-top: 24px;
+        }
+        .history-title {
+            color: #2d3e50;
+            font-size: 1.08rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+        .history-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            justify-content: center;
+        }
+        .history-item {
+            background: #f7fafd;
+            border-radius: 14px;
+            box-shadow: 0 2px 8px rgba(44, 62, 80, 0.10);
+            padding: 10px 12px;
+            text-align: center;
+            width: 110px;
+        }
+        .history-img {
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+            border-radius: 10px;
+            border: 2px solid #00b894;
+            margin-bottom: 6px;
+            background: #fff;
+        }
+        .history-num {
+            font-size: 1.1rem;
+            color: #0984e3;
+            font-weight: 700;
+        }
+        .draw-section {
+            margin-top: 32px;
+            text-align: center;
+        }
+        #canvas {
+            border: 2px solid #0984e3;
+            border-radius: 14px;
+            background: #fff;
+            box-shadow: 0 2px 12px rgba(44, 62, 80, 0.10);
+            cursor: crosshair;
+        }
+        .draw-btns {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+        .draw-btns button {
+            padding: 8px 18px;
+            border-radius: 10px;
+            border: none;
+            background: linear-gradient(90deg, #00b894 0%, #0984e3 100%);
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .draw-btns button:hover {
+            background: linear-gradient(90deg, #0984e3 0%, #00b894 100%);
+        }
+        .main-flex {
+            display: flex;
+            flex-direction: row;
+            gap: 32px;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        .main-content {
+            flex: 1 1 0;
+            min-width: 320px;
+        }
+        .side-history {
+            width: 220px;
+            min-width: 180px;
+            background: rgba(255,255,255,0.92);
+            border-radius: 18px;
+            box-shadow: 0 2px 12px rgba(44, 62, 80, 0.10);
+            padding: 18px 10px 10px 10px;
+            margin-top: 10px;
+        }
+        .side-title {
+            text-align: center;
+            font-size: 1.08rem;
+            font-weight: 700;
+            color: #2d3e50;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+        .side-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+        .side-item {
+            background: #f7fafd;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(44, 62, 80, 0.08);
+            padding: 6px 6px;
+            text-align: center;
+            width: 70px;
+        }
+        .side-img {
+            width: 38px;
+            height: 38px;
+            object-fit: contain;
+            border-radius: 6px;
+            border: 2px solid #00b894;
+            margin-bottom: 2px;
+            background: #fff;
+        }
+        .side-num {
+            font-size: 1rem;
+            color: #0984e3;
+            font-weight: 700;
+        }
+        @media (max-width: 600px) {
+            .container { max-width: 98vw; padding: 18px 8px; }
+            .history-list { gap: 10px; }
+        }
+        @media (max-width: 900px) {
+            .main-flex { flex-direction: column; gap: 0; }
+            .side-history { width: 100%; min-width: 0; margin-top: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-flex">
+            <div class="main-content">
+                <h1>Reconocimiento de Dígitos<br>con Redes Neuronales</h1>
+                <div class="section-title">Sube una imagen</div>
+                <form method="post" enctype="multipart/form-data">
+                    <label for="file">Imagen (número escrito a mano):</label>
+                    <input type="file" id="file" name="file" accept="image/png, image/jpeg">
+                    <button type="submit">Predecir número</button>
+                </form>
+                <div class="section-title">Dibuja un número</div>
+                <div class="draw-section">
+                    <canvas id="canvas" width="196" height="196"></canvas>
+                    <div class="draw-btns">
+                        <button type="button" onclick="clearCanvas()">Limpiar</button>
+                        <button type="button" onclick="sendDrawing()">Predecir dibujo</button>
+                    </div>
+                    <form id="drawForm" method="post" enctype="multipart/form-data" style="display:none;">
+                        <input type="hidden" name="draw_image" id="draw_image">
+                    </form>
+                </div>
+                {% if result or error or pred %}
+                <div class="card">
+                    {% if result %}
+                        <div class="result"><strong>{{ result }}</strong></div>
+                    {% endif %}
+                    {% if pred %}
+                        <div class="pred"><strong>{{ pred }}</strong></div>
+                    {% endif %}
+                    {% if img_url %}
+                        {% if img_url.startswith('data:image') %}
+                            <img src="{{ img_url }}" alt="Dibujo" class="img-preview">
+                        {% else %}
+                            <img src="{{ img_url }}" alt="Imagen subida" class="img-preview">
+                        {% endif %}
+                    {% endif %}
+                    {% if error %}
+                        <div class="error"><strong>{{ error }}</strong></div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            <div class="side-history">
+                <div class="side-title">Historial imágenes</div>
+                <div class="side-list">
+                    {% for item in image_history %}
+                        <div class="side-item">
+                            <img src="{{ item.img }}" class="side-img" alt="Historial imagen">
+                            <div class="side-num">{{ item.num }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="side-title" style="margin-top:18px;">Historial dibujos</div>
+                <div class="side-list">
+                    {% for item in draw_history %}
+                        <div class="side-item">
+                            <img src="{{ item.img }}" class="side-img" alt="Historial dibujo">
+                            <div class="side-num">{{ item.num }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Canvas drawing logic
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let drawing = false;
+
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        canvas.addEventListener('mousedown', function(e) {
+            drawing = true;
+            ctx.lineWidth = 16;
+            ctx.lineCap = "round";
+            ctx.strokeStyle = "#000";
+            ctx.beginPath();
+            ctx.moveTo(e.offsetX, e.offsetY);
+        });
+        canvas.addEventListener('mousemove', function(e) {
+            if (drawing) {
+                ctx.lineTo(e.offsetX, e.offsetY);
+                ctx.stroke();
+            }
+        });
+        canvas.addEventListener('mouseup', function(e) {
+            drawing = false;
+        });
+        canvas.addEventListener('mouseleave', function(e) {
+            drawing = false;
+        });
+
+        function clearCanvas() {
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function sendDrawing() {
+            // Resize to 28x28 and send as base64 PNG
+            let tempCanvas = document.createElement('canvas');
+            tempCanvas.width = 28;
+            tempCanvas.height = 28;
+            let tempCtx = tempCanvas.getContext('2d');
+            tempCtx.drawImage(canvas, 0, 0, 28, 28);
+            let dataURL = tempCanvas.toDataURL('image/png');
+            document.getElementById('draw_image').value = dataURL;
+            document.getElementById('drawForm').submit();
+        }
+    </script>
+</body>
+</html>
